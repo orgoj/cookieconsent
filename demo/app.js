@@ -13,6 +13,7 @@ cc.run({
     cookie_name: 'cc_cookie_demo1',             // default: 'cc_cookie'
     cookie_expiration : 365,                    // default: 182
     page_scripts: true,                         // default: false
+    auto_settings_button: true,
 
     // auto_language: null,                     // default: null; could also be 'browser' or 'document'
     // autorun: true,                           // default: true
@@ -36,6 +37,9 @@ cc.run({
             layout: 'box',                      // box,bar
             // position: 'left',                // right,left (available only if bar layout selected)
             transition: 'slide'                 // zoom,slide
+        },
+        settings_button: {
+            // position: 'left',                   // right,left
         }
     },
 
@@ -74,6 +78,10 @@ cc.run({
 
     languages: {
         'en': {
+            settings_button: {
+              text: 'C',
+              hint: 'Cookies setting'
+            },
             consent_modal: {
                 title: cookie + ' We use cookies!',
                 description: 'Hi, this website uses essential cookies to ensure its proper operation and tracking cookies to understand how you interact with it. The latter will be set only after consent. <button type="button" data-cc="c-settings" class="cc-link">Let me choose</button>',

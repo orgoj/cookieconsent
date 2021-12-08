@@ -21,6 +21,7 @@
             'current_lang': 'en',
             'auto_language': null,
             'autorun': true,                          // run as soon as loaded
+            'auto_settings_button': false,            // automaticaly create button for consent setting
             'cookie_name': 'cc_cookie',
             'cookie_expiration': 182,                 // default: 6 months (in days)
             'cookie_domain': window.location.hostname,       // default: current domain
@@ -45,6 +46,7 @@
         var cookie_consent_accepted = false;
         var consent_modal_visible = false;
         var settings_modal_visible = false;
+        var settings_button_visible = false;
         var clicked_inside_modal = false;
         var current_modal_focusable;
         var all_table_headers, all_blocks, onAccept, onChange, onFirstAction;
@@ -114,6 +116,7 @@
         var main_container;
         var consent_modal;
         var settings_container, settings_inner;
+        var settings_button;
 
         /**
          * Update config settings
@@ -130,6 +133,9 @@
 
             if(typeof conf_params['autorun'] === "boolean")
                 _config.autorun = conf_params['autorun'];
+
+            if(typeof conf_params['auto_settings_button'] === "boolean")
+            _config.auto_settings_button = conf_params['auto_settings_button'];
 
             if(typeof conf_params['cookie_domain'] === "string")
                 _config.cookie_domain = conf_params['cookie_domain'];
@@ -788,6 +794,21 @@
             all_modals_container.appendChild(settings_container);
             all_modals_container.appendChild(overlay);
 
+            // settings button
+            if(_config.auto_settings_button) {
+                settings_button = _createNode('div');
+                settings_button.id = 'cc_sb';
+                settings_button.style.visibility = "hidden";
+                settings_button.setAttribute('title', conf_params.languages[_config.current_lang]['settings_button'] && conf_params.languages[_config.current_lang]['settings_button']['hint'] || 'Cookie setting dialog');
+
+                var settings_button_button = _createNode('button');
+                settings_button_button.setAttribute('data-cc', 'c-settings');
+                settings_button_button[innerText] = conf_params.languages[_config.current_lang]['settings_button'] && conf_params.languages[_config.current_lang]['settings_button']['text'] || 'C';
+
+                settings_button.appendChild(settings_button_button);
+                main_container.appendChild(settings_button);
+            }
+
             // Finally append everything to body (main_container holds both modals)
             (root || document.body).appendChild(main_container);
         }
@@ -1168,6 +1189,7 @@
 
             var consent_modal_options = gui_options['consent_modal'];
             var settings_modal_options = gui_options['settings_modal'];
+            var settings_button_options = gui_options['settings_button'];
 
             /**
              * Helper function which adds layout and
@@ -1223,6 +1245,10 @@
                     settings_modal_options['transition']
                 );
             }
+
+            if(_config.auto_settings_button) {
+                if (settings_button_options['position'] == 'left') _addClass(settings_button, 'left');
+            }
         }
 
         /**
@@ -1276,7 +1302,10 @@
 
                     if(_config.autorun && consent_modal_exists){
                         _cookieconsent.show(conf_params['delay'] || 0);
+                    } else {
+                        _cookieconsent.showSettingsButton();
                     }
+
 
                     // Add class to enable animations/transitions
                     setTimeout(function(){_addClass(main_container, 'c--anim');}, 30);
@@ -1307,6 +1336,18 @@
         }
 
         /**
+         * Show settings button
+         * @param {number} delay
+         */
+        _cookieconsent.showSettingsButton = function(){
+            if(!_config.auto_settings_button || settings_button_visible) return;
+            settings_button.style.visibility = "visible";
+            settings_button_visible = true;
+
+            _log("CookieConsent [SETTINGS_BUTTON]: show");
+        }
+
+            /**
          * Show settings modal (with optional delay)
          * @param {number} delay
          */
@@ -1673,6 +1714,10 @@
                     last_elem_before_modal.focus();
                     current_modal_focusable = null;
                 }, 200);
+
+                if(_config.auto_settings_button) {
+                    _cookieconsent.showSettingsButton();
+                }
 
                 _log("CookieConsent [MODAL]: hide");
             }
